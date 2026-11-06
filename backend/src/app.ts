@@ -24,8 +24,16 @@ export async function buildApp() {
   if (!jwtSecret || jwtSecret.length < 32) throw new Error('JWT_SECRET (at least 32 characters) is required');
 
   await app.register(helmet, { contentSecurityPolicy: false });
+  // CORS_ORIGIN is a comma-separated list. An entry may contain `*` to match a host label
+  // (e.g. https://ledgerline*.onrender.com). Auth is a bearer header, not cookies, so CORS is
+  // not what protects accounts; it only decides which browser pages may call the API.
+  const origins = (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((o) => new RegExp('^' + o.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[a-z0-9-]*') + '$', 'i'));
   await app.register(cors, {
-    origin: (process.env.CORS_ORIGIN ?? 'http://localhost:5173').split(',').map((s) => s.trim()),
+    origin: origins,
     allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key'],
   });
   // Generous global limit (so legitimate bursts and concurrent requests are not throttled);

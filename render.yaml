@@ -1,6 +1,7 @@
-# Render Blueprint. After the first deploy, set CORS_ORIGIN on the API to the real
-# URL of the static site, and VITE_API_URL on the static site to the real API URL
-# (Render may add a suffix if the names below are taken), then redeploy both.
+# Render Blueprint.
+# VITE_API_URL must be the API's real public URL (Render adds a random suffix when a name
+# is taken, e.g. -uvk2). If you deploy this to a different account, change it to your API URL.
+# CORS_ORIGIN uses a wildcard so the static site's suffix does not matter.
 services:
   - type: web
     name: ledgerline-api
@@ -22,7 +23,8 @@ services:
           name: ledgerline-db
           property: connectionString
       - key: CORS_ORIGIN
-        value: https://ledgerline.onrender.com
+        # `*` matches the random suffix Render may add to the static site's URL
+        value: https://ledgerline*.onrender.com
 
   - type: web
     name: ledgerline
@@ -32,7 +34,7 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        value: https://ledgerline-api.onrender.com
+        value: https://ledgerline-api-uvk2.onrender.com
     routes:
       - type: rewrite
         source: /*

@@ -97,10 +97,7 @@ What the suites prove (and where):
 
 1. Push this repo to GitHub (public).
 2. Render → New → Blueprint → select the repo. It reads `render.yaml` and creates the Postgres database, the API and the static site.
-3. When the first deploy finishes, note the two real URLs. If they differ from the defaults in `render.yaml`:
-   - on the **API** service set `CORS_ORIGIN` to the static site URL;
-   - on the **static site** set `VITE_API_URL` to the API URL;
-   - redeploy both.
+3. When the first deploy finishes, note the API's real URL. Render adds a random suffix when a name is taken (mine is `https://ledgerline-api-uvk2.onrender.com`). Put that URL in `render.yaml` as `VITE_API_URL` and push; Render re-applies the Blueprint and rebuilds the static site. `CORS_ORIGIN` uses a wildcard (`https://ledgerline*.onrender.com`), so the static site's suffix does not matter.
 4. The API's start command runs `migrate` and `seed` on every boot; both are idempotent.
 
 The free plan sleeps when idle, so the first request after a pause can take about a minute. Wake it before a demo.

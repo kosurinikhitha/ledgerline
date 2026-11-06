@@ -11,4 +11,5 @@ if (!/test/i.test(new URL(testUrl).pathname)) {
 }
 process.env.DATABASE_URL = testUrl;
 process.env.NODE_ENV = 'test';
+process.env.CORS_ORIGIN = 'https://ledgerline*.onrender.com,http://localhost:5173';
 process.env.JWT_SECRET = process.env.JWT_SECRET && process.env.JWT_SECRET.length >= 32 ? process.env.JWT_SECRET : 'test-secret-test-secret-test-secret-123';
