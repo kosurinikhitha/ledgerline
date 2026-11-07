@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BookMarked, AlertCircle } from 'lucide-react';
 
+const SHOW_DEMO_ACCOUNTS = import.meta.env.VITE_SHOW_DEMO_ACCOUNTS !== 'false';
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -91,23 +93,26 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Demo credentials */}
-        <div className="mt-6 card">
-          <p className="text-sm font-medium text-gray-700 mb-3">Demo accounts (password: Password123!)</p>
-          <div className="space-y-2">
-            {demoAccounts.map((acc) => (
-              <button
-                key={acc.email}
-                onClick={() => { setEmail(acc.email); setPassword('Password123!'); }}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-lg transition-colors"
-              >
-                <span className="font-medium text-gray-900">{acc.label}</span>
-                <span className="text-gray-500 ml-2">({acc.role})</span>
-                <span className="block text-xs text-gray-400">{acc.email}</span>
-              </button>
-            ))}
+        {/* Demo credentials: shown for evaluation. Set VITE_SHOW_DEMO_ACCOUNTS=false and redeploy to hide. */}
+        {SHOW_DEMO_ACCOUNTS && (
+          <div className="mt-6 card">
+            <p className="text-sm font-medium text-gray-700 mb-3">Demo accounts (password: Password123!)</p>
+            <div className="space-y-2">
+              {demoAccounts.map((acc) => (
+                <button
+                  key={acc.email}
+                  type="button"
+                  onClick={() => { setEmail(acc.email); setPassword('Password123!'); }}
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  <span className="font-medium text-gray-900">{acc.label}</span>
+                  <span className="text-gray-500 ml-2">({acc.role})</span>
+                  <span className="block text-xs text-gray-400">{acc.email}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
