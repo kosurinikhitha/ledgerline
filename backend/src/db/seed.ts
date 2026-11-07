@@ -7,15 +7,21 @@ import { deposit } from '../services/transfer.service';
  * postings (so the ledger explains every rupee), keyed so they only happen once.
  */
 async function ensureUser(email: string, name: string, role: string, hash: string): Promise<string> {
+  // The demo users are public on purpose, so anyone could deactivate them. Re-running the
+  // seed (every deploy and every wake-up of the free instance) restores them.
   const [u] = await sql`
     INSERT INTO users (email, name, password_hash, role) VALUES (${email}, ${name}, ${hash}, ${role})
-    ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email RETURNING id`;
+    ON CONFLICT (email) DO UPDATE SET is_active = TRUE, role = EXCLUDED.role, password_hash = EXCLUDED.password_hash
+    RETURNING id`;
   return u.id as string;
 }
 
 async function ensureAccount(ownerId: string, name: string, overdraft: number): Promise<string> {
   const [existing] = await sql`SELECT id FROM accounts WHERE owner_id = ${ownerId} AND name = ${name}`;
-  if (existing) return existing.id as string;
+  if (existing) {
+    await sql`UPDATE accounts SET is_active = TRUE WHERE id = ${existing.id}`;
+    return existing.id as string;
+  }
   const [a] = await sql`INSERT INTO accounts (owner_id, name, currency, overdraft_limit)
                         VALUES (${ownerId}, ${name}, 'INR', ${overdraft}) RETURNING id`;
   return a.id as string;
