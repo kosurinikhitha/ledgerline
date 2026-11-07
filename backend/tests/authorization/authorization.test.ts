@@ -121,6 +121,16 @@ describe('Authorisation', () => {
     expect((await preflight('https://ledgerline.onrender.com.evil.com')).headers['access-control-allow-origin']).toBeUndefined();
   });
 
+  it('malformed ids get a clean 400 in our error format, never a 500 that leaks internals', async () => {
+    const res = await app.inject({ method: 'GET', url: '/accounts/not-a-uuid/statement', headers: { authorization: `Bearer ${tok.alice}` } });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error).toBe('VALIDATION');
+    // Bob is deactivated by an earlier test, so use Alice against Bob's account.
+    const forbidden = await call(tok.alice, '/transactions/withdrawal', { account_id: bobAcc.id, amount: 1 });
+    expect(forbidden.statusCode).toBe(403);
+    expect(forbidden.json().error).toBe('FORBIDDEN'); // custom handler shape, not the framework default
+  });
+
   it('input that tries to create money is rejected (negative, zero, NaN-ish, too many decimals)', async () => {
     for (const amount of [-100, 0, 0.001, 1e12]) {
       const res = await call(tok.alice, '/transactions/deposit', { account_id: aliceAcc.id, amount });

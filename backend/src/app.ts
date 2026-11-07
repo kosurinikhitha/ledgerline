@@ -41,14 +41,8 @@ export async function buildApp() {
   await app.register(rateLimit, { max: isTest ? 100000 : 600, timeWindow: '1 minute' });
   await app.register(jwt, { secret: jwtSecret, sign: { expiresIn: '8h' } });
 
-  await app.register(authRoutes);
-  await app.register(accountRoutes);
-  await app.register(transactionRoutes);
-  await app.register(adminRoutes);
-  await app.register(auditorRoutes);
-
-  app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }));
-
+  // Must be set BEFORE the route plugins are registered: Fastify plugins only inherit an
+  // error handler that already exists on the parent when they are registered.
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof AppError) {
       return reply.status(error.statusCode).send({ error: error.code, message: error.message, statusCode: error.statusCode });
@@ -65,6 +59,14 @@ export async function buildApp() {
     request.log.error(error);
     return reply.status(500).send({ error: 'INTERNAL', message: 'Unexpected error', statusCode: 500 });
   });
+
+  await app.register(authRoutes);
+  await app.register(accountRoutes);
+  await app.register(transactionRoutes);
+  await app.register(adminRoutes);
+  await app.register(auditorRoutes);
+
+  app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }));
 
   return app;
 }
