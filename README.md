@@ -2,8 +2,9 @@
 
 Money movement with a ledger you can prove. Books always balance, the same request never pays twice, and nothing in the ledger can be quietly changed.
 
-- Live app: `TODO: https://<your-static-site>.onrender.com`
-- Live API health: `TODO: https://<your-api>.onrender.com/health`
+- Live app: https://ledgerline-12x0.onrender.com
+- Live API health: https://ledgerline-api-uvk2.onrender.com/health
+- Free hosting sleeps when idle: the first request can take up to a minute.
 - Docs: [API.md](./API.md), [THREATS.md](./THREATS.md), [PROMPTS.md](./PROMPTS.md)
 
 ## Seed accounts (password for all: `Password123!`)
@@ -111,9 +112,10 @@ Multi-currency conversion (accounts carry a currency and transfers between diffe
 - A holder can deposit into their own account with no external verification (simulation).
 - No external anchor for the hash chain, so someone with full database ownership could rebuild the chain.
 - Frontend has no automated tests; the per-intent idempotency key was reviewed by reading, not by a browser test.
+- Demo credentials are public by design (the brief requires them), so anyone with the link can sign in. Demo users are restored on each restart; set `VITE_SHOW_DEMO_ACCOUNTS=false` to hide the login panel after evaluation.
 - Statement shows ledger entries and refused attempts as two lists, not one merged timeline.
 - Login rate limiting and SQL-injection resistance are not covered by tests.
 
 ## Still to do by the owner
 
-Commit regularly (history is scored), deploy and fill in the live URLs above, add the commit links in PROMPTS.md, rewrite PROMPTS.md in your own words, record the 5-minute demo.
+Commit regularly (history is scored), rewrite PROMPTS.md in your own words, record the 5-minute demo, make the repository public before submitting.

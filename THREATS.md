@@ -49,6 +49,22 @@ Isolation is **READ COMMITTED + explicit row locks**, not SERIALIZABLE. Each mon
 10. **Permission is checked, then the operation runs in a second step.** If an admin revokes access in the few milliseconds between the two, that one request can still go through. The money transaction itself stays correct.
 11. **Free-tier hosting** sleeps when idle, so the first request after a pause is slow.
 
+## Attacked on the live deployment (2026-11-07)
+
+Scripted against `https://ledgerline-api-uvk2.onrender.com` with a throwaway user, then deactivated:
+
+| Attack | Result |
+|--------|--------|
+| 10 parallel withdrawals of 2,000 from 10,000 | 5 × 200, 5 × 422, final balance exactly 0 |
+| Same transfer replayed 5× with one key | 1 transaction, 4 marked duplicate, money moved once |
+| 8 concurrent requests with one key | 1 transaction, no errors, money moved once |
+| Same key, different amount | 422, nothing moved |
+| Move / withdraw / read another user's account | 403 on all three |
+| Auditor deposits, holder self-grants overdraft, holder calls admin route | 403 on all three |
+| Negative amount | 400 |
+| Malformed id in URL | was **500** (real bug, see PROMPTS.md #9), now 400 |
+| Integrity proof afterwards | balanced, 0 mismatches, 0 unbalanced transfers, 0 hash-chain breaks |
+
 ## Not tested (said plainly)
 
 Login rate limiting, SQL injection resistance, and the frontend are not covered by automated tests. The frontend double-click protection (one idempotency key per user intent) was checked by reading the code and by the backend replay tests, not by a browser test.

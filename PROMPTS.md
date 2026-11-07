@@ -83,6 +83,18 @@ The first THREATS.md said transfers ran in a "serializable transaction" (they ru
 
 ---
 
+## 9. Custom error handler never ran — found by attacking the live deployment
+
+**Date:** 2026-11-07  
+**Asked:** Global error handling for the API.  
+**Produced:** `app.setErrorHandler(...)` placed *after* the route plugins were registered.  
+**Wrong:** Fastify plugins only inherit an error handler that already exists when they are registered, so none of the routes used it. Every error went through the framework default: a malformed account id in the URL returned **500** and echoed raw validation internals. The SQL-error mappings in the handler (floor violation → 422, bad id → 400) were dead code. The test suite missed it because it only checked status codes on paths where errors already carried a status.  
+**How it was found:** a scripted attack against the deployed API on Render (`/accounts/not-a-uuid/statement` → 500).  
+**Did instead:** wrote a failing test first (expects 400 and our own `VALIDATION` error shape), moved the handler above the route registrations, confirmed the test passed, and re-ran the live attack: now 400.  
+**COMMIT:** [41698bc](https://github.com/kosurinikhitha/ledgerline/commit/41698bc0fd956566c16e8cbb8409784e39e293b9)
+
+---
+
 ### What I would say in the interview about AI
 
 It was fast at scaffolding and wrong in exactly the places the brief warns about: error paths inside transactions, where the idempotency boundary sits, and tests that look like tests. Everything above was found by reading the generated SQL and by running attacks (parallel requests, replays, tampering), not by trusting the first output.
