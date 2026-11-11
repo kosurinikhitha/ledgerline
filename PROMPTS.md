@@ -2,12 +2,11 @@
 
 How AI was used on LedgerLine, and where it was wrong.
 
-> **DRAFT FOR THE OWNER TO REVIEW AND RE-WRITE.** The entries below describe real defects that were found in AI-generated code in the working session, based on the actual files. A first version of this file contained invented "first attempt" snippets; it was thrown away. Before submitting:
-> 1. Make each entry true to *your* session: change wording, dates, and what *you* noticed vs what the assistant caught.
-> 2. Commit links are filled in. **Be upfront about what they show:** the repo was first committed after these defects were found and fixed, so each linked commit contains the *corrected* code. The original buggy versions were never committed, so the history does not show before/after. From now on, commit each fix separately so the diff itself is the evidence.
-> 3. Delete any entry you cannot honestly defend in the interview.
+Tool: Kiro (AI coding agent in the IDE). Method: one broad prompt ("build LedgerLine as specified"), then review, run, and attack the output. The code, and the fixes below, were AI-written; what I am claiming is the direction, the review and the testing, not that I typed the fixes.
 
-Tool: Kiro (AI coding agent in the IDE). Method: one broad prompt ("build LedgerLine as specified"), then review, run, and attack the output.
+> **What the commit links show.** The repository was first committed after entries 1–8 were found and fixed, so those links point at commits containing the *corrected* code; the original buggy versions were never committed, and the history does not show before/after for them. Entry 9 (found by attacking the live deployment) is a separate commit whose diff is the fix itself.
+
+An honest note on this file: an early version contained invented "first attempt" code snippets. It was thrown away, and every entry below describes a defect that really existed in the generated code.
 
 ---
 
@@ -92,6 +91,16 @@ The first THREATS.md said transfers ran in a "serializable transaction" (they ru
 **How it was found:** a scripted attack against the deployed API on Render (`/accounts/not-a-uuid/statement` → 500).  
 **Did instead:** wrote a failing test first (expects 400 and our own `VALIDATION` error shape), moved the handler above the route registrations, confirmed the test passed, and re-ran the live attack: now 400.  
 **COMMIT:** [41698bc](https://github.com/kosurinikhitha/ledgerline/commit/41698bc0fd956566c16e8cbb8409784e39e293b9)
+
+---
+
+## 10. An approach I rejected: public self sign-up
+
+**Date:** 2026-11-07  
+**Considered:** Other submissions offer a public "Create an account" page, and I considered adding one.  
+**Why I rejected it:** in LedgerLine an account holder can deposit into their own account (there is no payment rail to verify deposits). Open sign-up would let anyone create accounts and add money with no approval. Adding a new public feature the day before submission would also risk breaking the live site.  
+**Did instead:** kept registration admin-only (`POST /auth/register` requires the admin role), and documented it under known gaps.  
+**COMMIT:** this decision is a documentation change; no sign-up code was ever written.
 
 ---
 

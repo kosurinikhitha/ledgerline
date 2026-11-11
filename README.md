@@ -115,7 +115,5 @@ Multi-currency conversion (accounts carry a currency and transfers between diffe
 - Demo credentials are public by design (the brief requires them), so anyone with the link can sign in. Demo users are restored on each restart; set `VITE_SHOW_DEMO_ACCOUNTS=false` to hide the login panel after evaluation.
 - Statement shows ledger entries and refused attempts as two lists, not one merged timeline.
 - Login rate limiting and SQL-injection resistance are not covered by tests.
-
-## Still to do by the owner
-
-Commit regularly (history is scored), rewrite PROMPTS.md in your own words, record the 5-minute demo, make the repository public before submitting.
+- No self sign-up, by design: only an admin can create users. Because a holder can deposit into their own account, open sign-up would let anyone create accounts and add money with no approval.
+- The commit history covers a short period rather than the whole week.
